@@ -1,0 +1,100 @@
+package edu.wallawalla.cs.classes.cptr354.lexer;
+
+import edu.ucsb.cseweb.classes.cse131a.lexer.Sym;
+import edu.ucsb.cseweb.classes.cse131a.lexer.Token;
+import edu.wallawalla.cs.classes.cptr354.lexer.Lexer;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class ParserTest {
+
+
+	@Test
+	public void successParser() {
+		String parTest[] = {"MODULE Figures; (* Abstract module *)\n" +
+				"\n" +
+				"TYPE\n" +
+				"   Figure*    = POINTER TO FigureDesc;\n" +
+				"\n" +
+				"   Message*   = RECORD END;\n" +
+				"   DrawMsg*   = RECORD (Message) END;\n" +
+				"   ClearMsg*  = RECORD (Message) END;\n" +
+				"   MarkMsg*   = RECORD (Message) END;\n" +
+				"   MoveMsg*   = RECORD (Message) dx*, dy* : INTEGER END;\n" +
+				"\n" +
+				"   Handler*   = PROCEDURE (f : Figure; VAR msg : Message);\n" +
+				"\n" +
+				"   FigureDesc* = RECORD\n" +
+				"      (* Abstract *)\n" +
+				"      handle : Handler;\n" +
+				"   END;\n" +
+				"\n" +
+				"PROCEDURE Handle* (f : Figure; VAR msg : Message);\n" +
+				"BEGIN\n" +
+				"   f.handle(f, msg);\n" +
+				"END Handle;\n" +
+				"\n" +
+				"PROCEDURE Init* (f : Figure; handle : Handler);\n" +
+				"BEGIN\n" +
+				"   f.handle := handle;\n" +
+				"END Init;\n" +
+				"\n" +
+				"END Figures."};
+		String file = "ParseTest";
+		assertTrue(OberonParser.main(parTest, file));
+	}
+	
+	@Test
+	public void successParser2() {
+		String parTest[] = {"MODULE Rectangles;\n" +
+				"\n" +
+				"IMPORT Figures;\n" +
+				"\n" +
+				"TYPE\n" +
+				"   Rectangle* = POINTER TO RectangleDesc;\n" +
+				"\n" +
+				"   RectangleDesc* = RECORD\n" +
+				"      (Figures.FigureDesc)\n" +
+				"      x, y, w, h : INTEGER;\n" +
+				"   END;\n" +
+				"\n" +
+				"PROCEDURE Draw* (r : Rectangle);\n" +
+				"BEGIN\n" +
+				"  (* ... *)\n" +
+				"END Draw;\n" +
+				"\n" +
+				"(* Other procedures here *)\n" +
+				"\n" +
+				"PROCEDURE Handle* (f: Figure; VAR msg: Figures.Message);\n" +
+				"   VAR\n" +
+				"      r : Rectangle;\n" +
+				"BEGIN\n" +
+				"   r := f(Rectangle);\n" +
+				"   IF    msg IS Figures.DrawMsg THEN Draw(r)\n" +
+				"   ELSIF msg IS Figures.MarkMsg THEN Mark(r)\n" +
+				"   ELSIF msg IS Figures.MoveMsg THEN Move(r, msg(Figures.MoveMsg).dx, msg(Figures.MoveMsg).dy)\n" +
+				"   ELSE  (* ignore *)\n" +
+				"   END\n" +
+				"END Handle;\n" +
+				"\n" +
+				"PROCEDURE New* (VAR r : Rectangle);\n" +
+				"BEGIN\n" +
+				"   NEW(r);\n" +
+				"   Figures.Init(r, Handle);\n" +
+				"END New;\n" +
+				"\n" +
+				"END Rectangles."};
+		String file = "ParseText2";
+		assertTrue(OberonParser.main(parTest, file));
+	}	
+
+    @Test
+	public void failParser() {
+		String parTest[] = {"fadfads; asdfasdf; sasghhghdf;"};
+		String file = "ParseTestFail";
+		assertFalse(OberonParser.main(parTest, file));
+	}
+	
+
+}
